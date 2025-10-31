@@ -2,10 +2,10 @@
 
 import TypingResult from "@/components/TypingResult";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Head from "next/head";
 
-export default function ResultPage() {
+function ResultContent() {
   const searchParams = useSearchParams();
   const [result, setResult] = useState(null);
 
@@ -61,45 +61,17 @@ export default function ResultPage() {
           name="keywords"
           content="typing test, typing result, WPM, typing accuracy, online typing test"
         />
-        <link
-          rel="canonical"
-          href={
-            typeof window !== "undefined"
-              ? window.location.href
-              : "https://www.yourwebsite.com/results"
-          }
-        />
+        <link rel="canonical" href={currentUrl} />
 
-        {/* Open Graph */}
-        <meta
-          property="og:title"
-          content="Typing Result - Check Your WPM & Accuracy"
-        />
-        <meta
-          property="og:description"
-          content="See your typing test result: WPM, accuracy, and detailed performance. Improve your typing speed online."
-        />
+        <meta property="og:title" content="Typing Result - Check Your WPM & Accuracy" />
+        <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content={
-            typeof window !== "undefined"
-              ? window.location.href
-              : "https://www.yourwebsite.com/results"
-          }
-        />
+        <meta property="og:url" content={currentUrl} />
         <meta property="og:image" content="/logoicon.png" />
 
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="Typing Result - Check Your WPM & Accuracy"
-        />
-        <meta
-          name="twitter:description"
-          content="See your typing test result: WPM, accuracy, and detailed performance. Improve your typing speed online."
-        />
+        <meta name="twitter:title" content="Typing Result - Check Your WPM & Accuracy" />
+        <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="/logoicon.png" />
       </Head>
 
@@ -112,5 +84,13 @@ export default function ResultPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense fallback={<p className="text-center mt-10">Loading result...</p>}>
+      <ResultContent />
+    </Suspense>
   );
 }

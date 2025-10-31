@@ -1,113 +1,109 @@
-// app/layout.js
-import "./globals.css";
+"use client";
 
-export const defaultTitle = "Pro Typing Test - Boost Your Speed & Accuracy";
+import TypingResult from "@/components/TypingResult";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import Head from "next/head";
 
-export const metadata = {
-  title: {
-    default: defaultTitle,
-    template: "%s | Pro Typing Test - Improve Your WPM",
-  },
-  description:
-    "Take the ultimate online typing test to measure your WPM and typing accuracy. Improve your typing skills with 1, 2, or 5-minute tests, real-time analytics, and detailed performance reports.",
-  keywords: [
-    "typing test",
-    "online typing speed test",
-    "WPM test",
-    "typing accuracy",
-    "ProType test",
-    "improve typing skills",
-    "typing practice",
-    "typing speed challenge",
-  ],
-  authors: [{ name: "pawan", url: "https://yourdomain.com" }],
-  creator: "pawan",
-  publisher: "Pro Typing Test",
-  robots: {
-    index: true,
-    follow: true,
-    "max-snippet": -1,
-    "max-image-preview": "large",
-  },
-  // manifest: "/site.webmanifest",
-  icons: {
-    icon: [
-      { url: "/favicon.png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/logoicon.svg", type: "image/svg+xml" },
-    ],
-  },
-  openGraph: {
-    title: defaultTitle,
-    description:
-      "Check your typing speed and accuracy online. Free 1, 2, or 5-minute typing tests with analytics and performance tracking.",
-    url: "https://yourdomain.com",
-    siteName: "Pro Typing Test",
-    images: [
-      {
-        url: "/logoicon.png",
-        width: 1200,
-        height: 630,
-        alt: "Pro Typing Test - Typing Speed & Accuracy",
-        type: "image/png",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: defaultTitle,
-    description:
-      "Take the online typing test and improve your speed and accuracy. Free, fast, and accurate typing tests for all levels.",
-    images: ["/logoicon.png"],
-    site: "@ProTypingTest",
-    creator: "@ProTypingTest", // change if you have real handle
-  },
-  alternates: {
-    canonical: "https://yourdomain.com",
-    languages: {
-      "en-US": "https://yourdomain.com",
-      "en-GB": "https://yourdomain.com/en-gb",
+function ResultContent() {
+  const searchParams = useSearchParams();
+  const [result, setResult] = useState(null);
+
+  const wpm = searchParams.get("wpm") || "0";
+  const minutes = searchParams.get("minutes") || "1";
+  const accuracy = searchParams.get("accuracy") || "0";
+
+  useEffect(() => {
+    const results = JSON.parse(localStorage.getItem("typingResults")) || [];
+    setResult(results[results.length - 1]);
+  }, []);
+
+  if (!wpm || !minutes || !accuracy) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500 font-semibold">
+          No results found. Please take a test first.
+        </p>
+      </div>
+    );
+  }
+
+  const title = `Typing Test Result: ${wpm} WPM in ${minutes} min | Accuracy ${accuracy}%`;
+  const description = `Your typing test result: ${wpm} WPM in ${minutes} minute(s) with ${accuracy}% accuracy. Improve your typing speed with Pro Typing Test online.`;
+  const currentUrl =
+    typeof window !== "undefined"
+      ? window.location.href
+      : "https://protyping.vercel.app/typing/result";
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: title,
+    description: description,
+    url: currentUrl,
+    mainEntity: {
+      "@type": "Dataset",
+      name: "Typing Test Result",
+      description: `Typing speed: ${wpm} WPM, Duration: ${minutes} minutes, Accuracy: ${accuracy}%`,
     },
-  },
-  verification: {
-    google: "your-google-site-verification-code",
-    bing: "your-bing-site-verification-code",
-  },
-  metadataBase: new URL("https://yourdomain.com"),
-  formatDetection: { telephone: false, email: false, address: false },
-  other: {
-    "theme-color": "#4F46E5",
-    "msapplication-TileColor": "#4F46E5",
-  },
-};
+  };
 
-export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <head>
+    <div className="min-h-screen bg-gray-50">
+      <Head>
+        {/* ✅ Basic SEO */}
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta
+          name="keywords"
+          content="typing test, typing result, WPM, typing accuracy, online typing test"
+        />
+        <link rel="canonical" href={currentUrl} />
+
+        {/* ✅ Google Verification */}
+        <meta
+          name="google-site-verification"
+          content="vFV7XV3JI4XC64hhewSlIygzRj0amKz7aV7pZcom5KQ"
+        />
+
+        {/* ✅ Open Graph (Facebook, LinkedIn) */}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:image" content="/logoicon.png" />
+        <meta property="og:site_name" content="Pro Typing Test" />
+
+        {/* ✅ Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content="/logoicon.png" />
+        <meta name="twitter:site" content="@ProTypingTest" />
+
+        {/* ✅ Structured Data for Google Rich Results */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "Pro Typing Test",
-              url: "https://yourdomain.com",
-              potentialAction: {
-                "@type": "SearchAction",
-                target: "https://yourdomain.com/search?q={search_term_string}",
-                "query-input": "required name=search_term_string",
-              },
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-      </head>
-      <body suppressHydrationWarning={true} className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-        {children}
-      </body>
-    </html>
+      </Head>
+
+      {result && (
+        <TypingResult
+          wpm={parseInt(wpm)}
+          minutes={parseInt(minutes)}
+          accuracy={parseInt(accuracy)}
+          result={result}
+        />
+      )}
+    </div>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense fallback={<p className="text-center mt-10">Loading result...</p>}>
+      <ResultContent />
+    </Suspense>
   );
 }
